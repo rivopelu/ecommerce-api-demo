@@ -28,21 +28,32 @@ public class ProductsService {
     }
 
     public Product createProduct(Product product) {
-        if (StringUtils.hasText(product.getName())) {
-            throw new BadRequestException("Nama Product Tidak Bisa Kosong");
-        } else if (product.getCategory() == null) {
-            throw new BadRequestException("Kategory Tidak Bisa Kosong");
-        } else if (StringUtils.hasText((product.getCategory().getId()))) {
-            throw new BadRequestException("Kategory Id Tidak Bisa Kosong");
-        } else {
-            categoryRepository.findById(product.getCategory().getId())
-                    .orElseThrow(() -> new BadRequestException("Category tidak terdaftar"));
-            return productRepository.save(product); // TODO part 4 12:17
-        }
+        validation(product);
+        categoryRepository.findById(product.getCategory().getId())
+                .orElseThrow(() -> new BadRequestException("Category tidak terdaftar"));
+
+        return productRepository.save(product);
+
     }
 
     public Product editProduct(Product product) {
+        if (!StringUtils.hasText(product.getId())) {
+            throw new BadRequestException("Id Tidak Di Temukan");
+        }
+        validation(product);
         return productRepository.save(product);
+    }
+
+    private void validation(Product product) {
+        if (!StringUtils.hasText(product.getName())) {
+            throw new BadRequestException("Nama Product Tidak Bisa Kosong");
+        }
+        if (product.getCategory() == null) {
+            throw new BadRequestException("Kategory Tidak Bisa Kosong");
+        }
+        if (!StringUtils.hasText((product.getCategory().getId()))) {
+            throw new BadRequestException("Kategory Id Tidak Bisa Kosong");
+        }
     }
 
     public Product changeImageProduct(String id, String image) {
